@@ -18,7 +18,7 @@ st.set_page_config(
 st.markdown("""
 <style>
 img {
-    max-height: 220px;
+    max-height: 300px;
     object-fit: cover;
 }
 </style>
@@ -192,48 +192,48 @@ CITY_IMAGES = {
     "Атина": "https://nasamnatam.com/pics/87-175b2ee109b2e657d250f36a9ed6d301.jpg",
     "Санторини": "https://static.dw.com/image/57460904_605.jpg",
 
-    "Виена": "https://unsplash.com/s/photos/vienna-city",
-    "Залцбург": "https://unsplash.com/s/photos/salzburg-city",
-    "Инсбрук": "https://unsplash.com/s/photos/innsbruck-city",
+    "Виена": "https://images.squarespace-cdn.com/content/v1/66c2f2dd14239c0a58c52faa/bb6e1eab-3375-4343-b383-0b7873319a23/%D0%94%D0%B2%D0%BE%D1%80%D0%B5%D1%86%D1%8A%D1%82+%D0%A8%D1%8C%D0%BE%D0%BD%D0%B1%D1%80%D1%83%D0%BD+%D0%B2%D1%8A%D0%B2+%D0%92%D0%B8%D0%B5%D0%BD%D0%B0%2C+%D0%90%D0%B2%D1%81%D1%82%D1%80%D0%B8%D1%8F.jpgy",
+    "Залцбург": "https://freshholiday.bg/img/NOVINI/BIG_5662_715__1738079265317.jpg",
+    "Инсбрук": "https://r-xx.bstatic.com/xdata/images/city/608x352/684028.webp?k=6e08ae5bad77cf17e69b5dd8e3d4c87c8fef704a0a787f4ef71f6563e5e4ff11&o=",
 
-    "Прага": "https://unsplash.com/s/photos/prague-city",
-    "Бърно": "https://unsplash.com/s/photos/brno-city",
+    "Прага": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHhmkTdrgvhuHa-knUKrsMKCEFopeKyiiw9g&s",
+    "Бърно": "https://momichetata.com/media/source/201907/1563960967_brno_1.jpg",
 
-    "Амстердам": "https://unsplash.com/s/photos/amsterdam-city",
-    "Ротердам": "https://unsplash.com/s/photos/rotterdam-city",
+    "Амстердам": "https://balkannomad.com/wp-content/uploads/2024/09/shutterstock_642423370-scaled.jpg",
+    "Ротердам": "https://static.dir.bg/uploads/images/2022/09/13/2393679/1366x768.jpg?_=1663075994",
 
-    "Стокхолм": "https://unsplash.com/s/photos/stockholm-city",
-    "Гьотеборг": "https://unsplash.com/s/photos/gothenburg-city",
+    "Стокхолм": "https://www.e-tours.bg/images/stockholm/c-fakepath-stocholm-3.jpg",
+    "Гьотеборг": "https://upload.wikimedia.org/wikipedia/commons/9/97/G%C3%B6teborg_2503_stitch_%2828573994096%29.jpg",
 
-    "Загреб": "https://unsplash.com/s/photos/zagreb-city",
-    "Сплит": "https://unsplash.com/s/photos/split-city",
-    "Дубровник": "https://unsplash.com/s/photos/dubrovnik-city",
+    "Загреб": "https://freshholiday.bg/img/NOVINI/BIG_Zagreb_09.14_1702660819212.jpg.webp",
+    "Сплит": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Split_080620-133710-IMG_0968x.jpg",
+    "Дубровник": "https://freshholiday.bg/img/NOVINI/BIG_dubrovnik_1717999865257.jpg.webp",
 
-    "Лисабон": "https://unsplash.com/s/photos/lisbon-city",
-    "Порто": "https://unsplash.com/s/photos/porto-city",
-    "Фаро": "https://unsplash.com/s/photos/faro-portugal",
+    "Лисабон": "https://cdn2.bohemia.bg/touristsites/849164/LRWA53.jpg",
+    "Порто": "https://cdn2.bohemia.bg/touristsites/771171/R6LUNA.jpg",
+    "Фаро": "https://p1.elle.bg/i/s/istock-653375294-123294-1140x0.jpg",
 
-    "Варшава": "https://unsplash.com/s/photos/warsaw-city",
-    "Краков": "https://unsplash.com/s/photos/krakow-city",
-    "Гданск": "https://unsplash.com/s/photos/gdansk-city",
+    "Варшава": "https://www.e-tours.bg/images/Warsaw/c-fakepath-old-town-3.jpg",
+    "Краков": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Krakow_Rynek_Glowny_panorama_2.jpg",
+    "Гданск": "https://cdn2.bohemia.bg/touristsites/176108/8RZBFV.jpg",
 
-    "Будапеща": "https://unsplash.com/s/photos/budapest-city",
-    "Дебрецен": "https://unsplash.com/s/photos/debrecen-city",
+    "Будапеща": "https://savetite.com/wp-content/uploads/2023/09/budapeshta-zabelejitelnosti.jpg",
+    "Дебрецен": "https://upload.wikimedia.org/wikipedia/commons/0/0f/DebrecenUniversity3.jpg",
 
-    "Цюрих": "https://unsplash.com/s/photos/zurich-city",
-    "Женева": "https://unsplash.com/s/photos/geneva-city",
-    "Берн": "https://unsplash.com/s/photos/bern-city",
+    "Цюрих": "https://cdn.tripzaza.com/bg/destinations/wp-content/uploads/2018/07/Dostoprimechatelnosti-TSyuriha-e1531466241421.jpg",
+    "Женева": "https://cdn2.bohemia.bg/touristsites/545735/UNJYNA.jpg",
+    "Берн": "https://peika.bg/pictures/79736_715_.jpg",
 
-    "Брюксел": "https://unsplash.com/s/photos/brussels-city",
-    "Брюж": "https://unsplash.com/s/photos/bruges-city",
-    "Антверпен": "https://unsplash.com/s/photos/antwerp-city",
+    "Брюксел": "https://i0.wp.com/bulgarianontheroad.com/wp-content/uploads/2024/12/img_4991-min-1.jpg?fit=1200%2C900&ssl=1",
+    "Брюж": "https://upload.wikimedia.org/wikipedia/commons/8/8f/Bruggewasser.jpg",
+    "Антверпен": "https://upload.wikimedia.org/wikipedia/commons/3/38/Amberes%3B_vistas_MAS_2.jpg",
 
-    "Букурещ": "https://unsplash.com/s/photos/bucharest-city",
-    "Брашов": "https://unsplash.com/s/photos/brasov-city",
-    "Клуж-Напока": "https://unsplash.com/s/photos/cluj-napoca-city",
+    "Букурещ": "https://balkannomad.com/wp-content/uploads/2025/08/shutterstock_2467711837-scaled.jpg",
+    "Брашов": "https://freshholiday.bg/img/NOVINI/BIG_brasov-romania_1709040104232.jpg.webp",
+    "Клуж-Напока": "https://upload.wikimedia.org/wikipedia/commons/7/78/CJROCluj-Napoca_19.jpg",
 
-    "Копенхаген": "https://unsplash.com/s/photos/copenhagen-city",
-    "Орхус": "https://unsplash.com/s/photos/aarhus-city",
+    "Копенхаген": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXOFPiXwF0rSWZ-6yJWH8Tupxx1_bgnNjv7g&s",
+    "Орхус": "https://foxiepass.com/blog/uploads/public/20240723/aarhus2_oZ09Fo.jpg",
 }
 
 
