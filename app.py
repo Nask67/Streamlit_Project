@@ -124,7 +124,7 @@ st.sidebar.header("🧭 Контролен панел")
 route_choice = st.sidebar.selectbox("Маршрут", list(routes.keys()))
 transport_choice = st.sidebar.radio("Превоз", ["Кола", "Влак", "Самолет"])
 days = st.sidebar.slider("Брой дни", 1, 10, 4)
-budget = st.sidebar.number_input("Бюджет (лв)", 300, 5000, 1500)
+budget = st.sidebar.number_input("Бюджет (лв)", 300, 10000, 1500)
 
 if st.sidebar.button("🚀 Планирай пътуването"):
     cities = routes[route_choice]
