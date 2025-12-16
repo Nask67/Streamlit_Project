@@ -381,7 +381,7 @@ hotel_type = st.sidebar.radio(
 )
 
 days = st.sidebar.slider("📆 Продължителност (дни)", 2, 21, 7)
-budget = st.sidebar.number_input("💰 Твоят бюджет (лв)", 500, 25000, 4000)
+budget = st.sidebar.number_input("💰 Твоят бюджет (лв)", 500, 30000, 4000)
 
 plan = st.sidebar.button("🧭 Планирай пътуването")
 
