@@ -1,8 +1,8 @@
 import streamlit as st
 from abc import ABC, abstractmethod
 import pandas as pd
-import random
 import pydeck as pdk
+import random
 
 # ================== DATA ==================
 
@@ -51,14 +51,11 @@ class Transport(ABC):
     def __init__(self, price_per_km, speed):
         self.price_per_km = price_per_km
         self.speed = speed
-
     @abstractmethod
     def name(self):
         pass
-
     def travel_cost(self, distance):
         return distance * self.price_per_km
-
     def travel_time(self, distance):
         return distance / self.speed
 
@@ -84,52 +81,61 @@ class Plane(Transport):
 
 theme = st.sidebar.radio("Тема", ["Светла", "Тъмна"])
 if theme == "Светла":
-    PRIMARY_COLOR = "#0f4c75"
-    SECONDARY_COLOR = "#3282b8"
-    ACCENT_COLOR = "#d7263d"
-    BG_COLOR = "#f0f4f8"
-    POINT_COLOR = [50, 130, 200]
-    LINE_COLOR = [215, 38, 61]
-    TEXT_COLOR = "black"
+    COLORS = {
+        "BG": "#f0f4f8",
+        "TEXT": "#000000",
+        "PRIMARY": "#0f4c75",
+        "SECONDARY": "#3282b8",
+        "ACCENT": "#d7263d",
+        "POINT": [50,130,200],
+        "LINE": [215,38,61],
+        "MAP_STYLE": "mapbox://styles/mapbox/light-v9"
+    }
 else:
-    PRIMARY_COLOR = "#d1d1d1"
-    SECONDARY_COLOR = "#222222"
-    ACCENT_COLOR = "#ff4b5c"
-    BG_COLOR = "#0f0f0f"
-    POINT_COLOR = [200, 200, 255]
-    LINE_COLOR = [255, 100, 100]
-    TEXT_COLOR = "white"
+    COLORS = {
+        "BG": "#0f0f0f",
+        "TEXT": "#ffffff",
+        "PRIMARY": "#d1d1d1",
+        "SECONDARY": "#222222",
+        "ACCENT": "#ff4b5c",
+        "POINT": [200,200,255],
+        "LINE": [255,100,100],
+        "MAP_STYLE": "mapbox://styles/mapbox/dark-v10"
+    }
 
-st.markdown(
-    f"""
+# ================== APPLY CSS ==================
+
+st.markdown(f"""
     <style>
-        .stApp {{
-            background-color: {BG_COLOR};
-            color: {TEXT_COLOR};
-        }}
-        .sidebar .sidebar-content {{
-            background-color: {SECONDARY_COLOR};
-            color: white;
-        }}
-        .stButton>button {{
-            background-color: {ACCENT_COLOR};
-            color: white;
-        }}
-        h1 {{
-            color: {PRIMARY_COLOR};
-        }}
-        .stExpanderHeader {{
-            font-size: 18px;
-            font-weight: bold;
-        }}
+    .stApp {{
+        background-color: {COLORS['BG']};
+        color: {COLORS['TEXT']};
+    }}
+    .sidebar .sidebar-content {{
+        background-color: {COLORS['SECONDARY']};
+        color: white;
+    }}
+    .stButton>button {{
+        background-color: {COLORS['ACCENT']};
+        color: white;
+    }}
+    h1, h2, h3 {{
+        color: {COLORS['PRIMARY']};
+    }}
+    .stSlider>div>div>div>div>div {{
+        background: {COLORS['PRIMARY']};
+    }}
+    .stExpanderHeader {{
+        font-size: 18px;
+        font-weight: bold;
+        color: {COLORS['TEXT']};
+    }}
     </style>
-    """, unsafe_allow_html=True
-)
+""", unsafe_allow_html=True)
 
 # ================== UI ==================
 
 st.title("🌍 Интерактивен туристически планер")
-
 st.sidebar.header("🧭 Контролен панел")
 route_choice = st.sidebar.selectbox("Маршрут", list(routes.keys()))
 transport_choice = st.sidebar.radio("Превоз", ["Кола", "Влак", "Самолет"])
@@ -138,11 +144,11 @@ budget = st.sidebar.number_input("Бюджет (лв)", 300, 5000, 1500)
 
 if st.sidebar.button("🚀 Планирай пътуването"):
     cities = routes[route_choice]
-    transport = Car() if transport_choice == "Кола" else Train() if transport_choice == "Влак" else Plane()
-
+    transport = Car() if transport_choice=="Кола" else Train() if transport_choice=="Влак" else Plane()
+    
     st.subheader("🗺️ Маршрут")
     st.write(" ➡️ ".join(cities))
-
+    
     # ================== MAP ==================
     points_df = pd.DataFrame([{"lat": city_coords[c][0], "lon": city_coords[c][1]} for c in cities])
     lines_df = pd.DataFrame([
@@ -151,7 +157,7 @@ if st.sidebar.button("🚀 Планирай пътуването"):
          "to_lat": city_coords[cities[i+1]][0],
          "to_lon": city_coords[cities[i+1]][1]} for i in range(len(cities)-1)
     ])
-
+    
     layer_points = pdk.Layer(
         "ScatterplotLayer",
         data=points_df,
@@ -160,25 +166,27 @@ if st.sidebar.button("🚀 Планирай пътуването"):
         radius_scale=6,
         radius_min_pixels=4,
         radius_max_pixels=12,
-        get_fill_color=POINT_COLOR,
+        get_fill_color=COLORS['POINT'],
         pickable=True,
     )
-
+    
     layer_lines = pdk.Layer(
         "LineLayer",
         data=lines_df,
         get_source_position="[from_lon, from_lat]",
         get_target_position="[to_lon, to_lat]",
         get_width=4,
-        get_color=LINE_COLOR
+        get_color=COLORS['LINE']
     )
-
+    
     view_state = pdk.ViewState(latitude=points_df["lat"].mean(),
                                longitude=points_df["lon"].mean(),
                                zoom=4)
-
-    st.pydeck_chart(pdk.Deck(layers=[layer_lines, layer_points], initial_view_state=view_state))
-
+    
+    st.pydeck_chart(pdk.Deck(layers=[layer_lines, layer_points],
+                             initial_view_state=view_state,
+                             map_style=COLORS['MAP_STYLE']))
+    
     # ================== DETAILS ==================
     total_food = total_hotel = 0
     progress = st.progress(0)
@@ -188,27 +196,27 @@ if st.sidebar.button("🚀 Планирай пътуването"):
             st.markdown(f"**🏨 Хотел:** {info['hotel'][0]} – {info['hotel'][1]} лв/нощ")
             st.markdown(f"**🍽️ Храна:** {info['food'][0]} – {info['food'][1]} лв/ден")
             st.markdown(f"**🏛️ Забележителност:** {info['sight']}")
-        total_food += info["food"][1] * days
-        total_hotel += info["hotel"][1] * days
-        progress.progress((i + 1) / len(cities))
-
-    distance = DISTANCE_BETWEEN_CITIES * (len(cities) - 1)
+        total_food += info['food'][1]*days
+        total_hotel += info['hotel'][1]*days
+        progress.progress((i+1)/len(cities))
+    
+    distance = DISTANCE_BETWEEN_CITIES*(len(cities)-1)
     transport_cost = transport.travel_cost(distance)
     travel_time = transport.travel_time(distance)
     total_cost = total_food + total_hotel + transport_cost
-
+    
     st.subheader("💰 Резюме")
     st.markdown(f"**{transport.name()}** – {transport_cost:.2f} лв")
     st.markdown(f"🍽️ Храна: {total_food:.2f} лв")
     st.markdown(f"🏨 Хотели: {total_hotel:.2f} лв")
     st.markdown(f"⏱️ Време за пътуване: {travel_time:.1f} часа")
-
+    
     st.markdown("---")
     st.markdown(f"## 💵 Общо: **{total_cost:.2f} лв**")
-    if total_cost <= budget * 0.8: st.success("💚 Отличен бюджет")
-    elif total_cost <= budget: st.warning("🟡 На ръба")
+    if total_cost<=budget*0.8: st.success("💚 Отличен бюджет")
+    elif total_cost<=budget: st.warning("🟡 На ръба")
     else: st.error("🔴 Над бюджета")
-
-    st.info(f"🎲 Случайно събитие: {random.choice(['🎉 Фестивал', '🌧️ Лошо време', '💸 Отстъпка'])}")
+    
+    st.info(f"🎲 Случайно събитие: {random.choice(['🎉 Фестивал','🌧️ Лошо време','💸 Отстъпка'])}")
     st.subheader("⭐ Оцени пътуването")
     st.slider("Колко ти хареса?", 1, 5)
