@@ -1,64 +1,40 @@
 import streamlit as st
 from abc import ABC, abstractmethod
 import pandas as pd
-import random
 import pydeck as pdk
+import time
 
 # ================== DATA ==================
-
 routes = {
-    "България → Германия": ["София", "Белград", "Виена", "Мюнхен"],
-    "България → Италия": ["София", "Скопие", "Рим", "Флоренция"],
-    "България → Франция": ["София", "Будапеща", "Прага", "Париж"],
-    "Балканска обиколка": ["София", "Скопие", "Тирана", "Дубровник"]
+    "България → Германия": ["София", "Белград", "Виена", "Мюнхен"]
 }
 
 city_info = {
-    "София": {"hotel": ("Hotel Sofia Center", 70), "food": ("Българска кухня", 20), "sight": "Александър Невски"},
-    "Белград": {"hotel": ("Belgrade Inn", 65), "food": ("Сръбска скара", 22), "sight": "Калемегдан"},
-    "Виена": {"hotel": ("Vienna City Hotel", 90), "food": ("Виенски шницел", 30), "sight": "Шьонбрун"},
-    "Мюнхен": {"hotel": ("Munich Central", 95), "food": ("Немска кухня", 28), "sight": "Мариенплац"},
-    "Скопие": {"hotel": ("Skopje Square", 60), "food": ("Македонска кухня", 18), "sight": "Каменният мост"},
-    "Рим": {"hotel": ("Roma Centrale", 110), "food": ("Италианска паста", 35), "sight": "Колизеумът"},
-    "Флоренция": {"hotel": ("Florence Art", 95), "food": ("Тосканска кухня", 32), "sight": "Санта Мария дел Фиоре"},
-    "Будапеща": {"hotel": ("Danube View", 85), "food": ("Унгарски гулаш", 25), "sight": "Парламентът"},
-    "Прага": {"hotel": ("Old Town Prague", 80), "food": ("Чешка кухня", 24), "sight": "Карловият мост"},
-    "Париж": {"hotel": ("Paris Boutique", 120), "food": ("Френска кухня", 40), "sight": "Айфеловата кула"},
-    "Тирана": {"hotel": ("Tirana City", 55), "food": ("Албанска кухня", 17), "sight": "Скандербег"},
-    "Дубровник": {"hotel": ("Adriatic View", 100), "food": ("Средиземноморска кухня", 30), "sight": "Старият град"}
+    "София": {"hotel": "Hotel Sofia Center", "food": "Българска кухня", "sight": "Александър Невски"},
+    "Белград": {"hotel": "Belgrade Inn", "food": "Сръбска скара", "sight": "Калемегдан"},
+    "Виена": {"hotel": "Vienna City Hotel", "food": "Виенски шницел", "sight": "Шьонбрун"},
+    "Мюнхен": {"hotel": "Munich Central", "food": "Немска кухня", "sight": "Мариенплац"}
 }
 
 city_coords = {
     "София": [42.6977, 23.3219],
     "Белград": [44.7866, 20.4489],
     "Виена": [48.2082, 16.3738],
-    "Мюнхен": [48.1351, 11.5820],
-    "Скопие": [41.9981, 21.4254],
-    "Рим": [41.9028, 12.4964],
-    "Флоренция": [43.7696, 11.2558],
-    "Будапеща": [47.4979, 19.0402],
-    "Прага": [50.0755, 14.4378],
-    "Париж": [48.8566, 2.3522],
-    "Тирана": [41.3275, 19.8187],
-    "Дубровник": [42.6507, 18.0944]
+    "Мюнхен": [48.1351, 11.5820]
 }
 
 DISTANCE_BETWEEN_CITIES = 300
 
 # ================== OOP ==================
-
 class Transport(ABC):
     def __init__(self, price_per_km, speed):
         self.price_per_km = price_per_km
         self.speed = speed
-
     @abstractmethod
     def name(self):
         pass
-
     def travel_cost(self, distance):
         return distance * self.price_per_km
-
     def travel_time(self, distance):
         return distance / self.speed
 
@@ -81,145 +57,119 @@ class Plane(Transport):
         return "✈️ Самолет"
 
 # ================== UI ==================
+st.title("🌍 Туристически планер с анимация и hover")
 
-# Модерен цветови стил
-PRIMARY_COLOR = "#0f4c75"      # тъмно синьо
-SECONDARY_COLOR = "#3282b8"    # тюркоаз
-ACCENT_COLOR = "#d7263d"       # червено за акценти
-BG_COLOR = "#f0f4f8"           # светъл фон
-st.set_page_config(page_title="Туристически планер", layout="wide", page_icon="🌍")
+route_choice = st.selectbox("Маршрут", list(routes.keys()))
+transport_choice = st.selectbox("Превоз", ["Кола", "Влак", "Самолет"])
+days = st.slider("Брой дни", 1, 10, 4)
+budget = st.number_input("Бюджет (лв)", 300, 5000, 1500)
 
-st.markdown(
-    f"""
-    <style>
-        .reportview-container {{
-            background-color: {BG_COLOR};
-        }}
-        .sidebar .sidebar-content {{
-            background-color: {SECONDARY_COLOR};
-            color: white;
-        }}
-        .stButton>button {{
-            background-color: {ACCENT_COLOR};
-            color: white;
-        }}
-        .stSlider>div>div>div>div>div {{
-            background: {PRIMARY_COLOR};
-        }}
-        h1 {{
-            color: {PRIMARY_COLOR};
-            text-shadow: 1px 1px 2px #aaa;
-        }}
-        .stExpanderHeader {{
-            font-size: 18px;
-            font-weight: bold;
-        }}
-    </style>
-    """, unsafe_allow_html=True
-)
-
-st.title("🌍 Интерактивен туристически планер")
-
-st.sidebar.header("🧭 Контролен панел")
-route_choice = st.sidebar.selectbox("Маршрут", list(routes.keys()))
-transport_choice = st.sidebar.radio("Превоз", ["Кола", "Влак", "Самолет"])
-days = st.sidebar.slider("Брой дни", 1, 10, 4)
-budget = st.sidebar.number_input("Бюджет (лв)", 300, 10000, 1500)
-
-if st.sidebar.button("🚀 Планирай пътуването"):
+if st.button("🚀 Планирай пътуването"):
     cities = routes[route_choice]
-    transport = Car() if transport_choice == "Кола" else Train() if transport_choice == "Влак" else Plane()
+    transport = Car() if transport_choice=="Кола" else Train() if transport_choice=="Влак" else Plane()
 
     st.subheader("🗺️ Маршрут")
     st.write(" ➡️ ".join(cities))
 
     # ================== MAP ==================
+    points_data = []
+    for c in cities:
+        info = city_info[c]
+        points_data.append({
+            "lat": city_coords[c][0],
+            "lon": city_coords[c][1],
+            "name": c,
+            "hotel": info["hotel"],
+            "food": info["food"],
+            "sight": info["sight"]
+        })
+    points_df = pd.DataFrame(points_data)
 
-    points_df = pd.DataFrame(
-        [{"lat": city_coords[c][0], "lon": city_coords[c][1]} for c in cities]
-    )
-
-    lines_df = pd.DataFrame([
-        {
+    lines_data = []
+    for i in range(len(cities)-1):
+        lines_data.append({
             "from_lat": city_coords[cities[i]][0],
             "from_lon": city_coords[cities[i]][1],
-            "to_lat": city_coords[cities[i + 1]][0],
-            "to_lon": city_coords[cities[i + 1]][1],
-        }
-        for i in range(len(cities) - 1)
-    ])
+            "to_lat": city_coords[cities[i+1]][0],
+            "to_lon": city_coords[cities[i+1]][1]
+        })
+    lines_df = pd.DataFrame(lines_data)
 
-    layer_points = pdk.Layer(
-        "ScatterplotLayer",
-        data=points_df,
-        get_position="[lon, lat]",
-        get_radius=1000,
-        radius_scale=6,
-        radius_min_pixels=4,
-        radius_max_pixels=12,
-        get_fill_color=[50, 130, 200],
-        pickable=True,
-    )
-
+    # Статични точки + линии
     layer_lines = pdk.Layer(
         "LineLayer",
         data=lines_df,
         get_source_position="[from_lon, from_lat]",
         get_target_position="[to_lon, to_lat]",
-        get_width=4,
-        get_color=[215, 38, 61],
+        get_color=[215,38,61],
+        get_width=4
+    )
+
+    layer_points = pdk.Layer(
+        "ScatterplotLayer",
+        data=points_df,
+        get_position='[lon, lat]',
+        get_radius=1000,
+        radius_scale=6,
+        get_fill_color=[50,130,200],
+        pickable=True,
+        tooltip=True
+    )
+
+    # ================== ANIMATED ICON ==================
+    icon_data = pd.DataFrame([{"lat": city_coords[cities[0]][0], "lon": city_coords[cities[0]][1]}])
+    icon_layer = pdk.Layer(
+        "ScatterplotLayer",
+        data=icon_data,
+        get_position='[lon, lat]',
+        get_radius=1200,
+        get_fill_color=[255, 0, 0],
+        radius_min_pixels=6,
+        radius_max_pixels=12,
+        pickable=False
     )
 
     view_state = pdk.ViewState(
         latitude=points_df["lat"].mean(),
         longitude=points_df["lon"].mean(),
-        zoom=4,
+        zoom=4
     )
 
-    st.pydeck_chart(pdk.Deck(
-        layers=[layer_lines, layer_points],
-        initial_view_state=view_state
-    ))
+    map_placeholder = st.empty()
+
+    # ================== ANIMATION ==================
+    num_steps = 30  # брой стъпки между градовете
+    for i in range(len(cities)-1):
+        start = city_coords[cities[i]]
+        end = city_coords[cities[i+1]]
+        for step in range(num_steps+1):
+            lat = start[0] + (end[0]-start[0])*(step/num_steps)
+            lon = start[1] + (end[1]-start[1])*(step/num_steps)
+            icon_data = pd.DataFrame([{"lat": lat, "lon": lon}])
+            icon_layer.data = icon_data
+            map_placeholder.pydeck_chart(pdk.Deck(
+                layers=[layer_lines, layer_points, icon_layer],
+                initial_view_state=view_state,
+                map_style="mapbox://styles/mapbox/light-v9",
+                tooltip={"text":"{name}\n🏨 {hotel}\n🍽️ {food}\n🏛️ {sight}"}
+            ))
+            time.sleep(0.05)
 
     # ================== DETAILS ==================
-
+    st.subheader("🏙️ Градове")
     total_food = total_hotel = 0
-    progress = st.progress(0)
-
-    for i, city in enumerate(cities):
+    for city in cities:
         info = city_info[city]
         with st.expander(f"📍 {city}"):
-            st.markdown(f"**🏨 Хотел:** {info['hotel'][0]} – {info['hotel'][1]} лв/нощ")
-            st.markdown(f"**🍽️ Храна:** {info['food'][0]} – {info['food'][1]} лв/ден")
+            st.markdown(f"**🏨 Хотел:** {info['hotel']}")
+            st.markdown(f"**🍽️ Храна:** {info['food']}")
             st.markdown(f"**🏛️ Забележителност:** {info['sight']}")
-        total_food += info["food"][1] * days
-        total_hotel += info["hotel"][1] * days
-        progress.progress((i + 1) / len(cities))
+        total_food += days*20
+        total_hotel += days*70
 
-    # ================== SUMMARY ==================
-
-    distance = DISTANCE_BETWEEN_CITIES * (len(cities) - 1)
-    transport_cost = transport.travel_cost(distance)
-    travel_time = transport.travel_time(distance)
-    total_cost = total_food + total_hotel + transport_cost
-
-    st.subheader("💰 Резюме")
-    st.markdown(f"**{transport.name()}** – {transport_cost:.2f} лв")
-    st.markdown(f"🍽️ Храна: {total_food:.2f} лв")
-    st.markdown(f"🏨 Хотели: {total_hotel:.2f} лв")
-    st.markdown(f"⏱️ Време за пътуване: {travel_time:.1f} часа")
-
-    st.markdown("---")
-    st.markdown(f"## 💵 Общо: **{total_cost:.2f} лв**")
-
-    if total_cost <= budget * 0.8:
-        st.success("💚 Отличен бюджет")
-    elif total_cost <= budget:
-        st.warning("🟡 На ръба")
-    else:
-        st.error("🔴 Над бюджета")
-
-    st.info(f"🎲 Случайно събитие: {random.choice(['🎉 Фестивал', '🌧️ Лошо време', '💸 Отстъпка'])}")
-
-    st.subheader("⭐ Оцени пътуването")
-    st.slider("Колко ти хареса?", 1, 5)
+    st.subheader("💰 Разходи (приблизителни)")
+    st.write(f"Храна: {total_food} лв")
+    st.write(f"Хотели: {total_hotel} лв")
+    transport_cost = transport.travel_cost(DISTANCE_BETWEEN_CITIES*(len(cities)-1))
+    st.write(f"{transport.name()} – транспорт: {transport_cost:.2f} лв")
+    st.write(f"Общо: {total_food + total_hotel + transport_cost:.2f} лв")
