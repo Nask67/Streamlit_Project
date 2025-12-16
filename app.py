@@ -80,20 +80,34 @@ class Plane(Transport):
     def name(self):
         return "✈️ Самолет"
 
-# ================== UI ==================
+# ================== THEME ==================
 
-# Модерен цветови стил
-PRIMARY_COLOR = "#0f4c75"      # тъмно синьо
-SECONDARY_COLOR = "#3282b8"    # тюркоаз
-ACCENT_COLOR = "#d7263d"       # червено за акценти
-BG_COLOR = "#f0f4f8"           # светъл фон
-st.set_page_config(page_title="Туристически планер", layout="wide", page_icon="🌍")
+if "theme" not in st.session_state:
+    st.session_state.theme = "light"
+
+def toggle_theme():
+    st.session_state.theme = "dark" if st.session_state.theme == "light" else "light"
+
+st.sidebar.button("🌓 Смени тема", on_click=toggle_theme)
+
+# Цветови схеми
+if st.session_state.theme == "light":
+    PRIMARY_COLOR = "#0f4c75"
+    SECONDARY_COLOR = "#3282b8"
+    ACCENT_COLOR = "#d7263d"
+    BG_COLOR = "#f0f4f8"
+else:
+    PRIMARY_COLOR = "#d1d1d1"
+    SECONDARY_COLOR = "#222222"
+    ACCENT_COLOR = "#ff4b5c"
+    BG_COLOR = "#0f0f0f"
 
 st.markdown(
     f"""
     <style>
         .reportview-container {{
             background-color: {BG_COLOR};
+            color: {"white" if st.session_state.theme=="dark" else "black"};
         }}
         .sidebar .sidebar-content {{
             background-color: {SECONDARY_COLOR};
@@ -118,13 +132,15 @@ st.markdown(
     """, unsafe_allow_html=True
 )
 
+# ================== UI ==================
+
 st.title("🌍 Интерактивен туристически планер")
 
 st.sidebar.header("🧭 Контролен панел")
 route_choice = st.sidebar.selectbox("Маршрут", list(routes.keys()))
 transport_choice = st.sidebar.radio("Превоз", ["Кола", "Влак", "Самолет"])
 days = st.sidebar.slider("Брой дни", 1, 10, 4)
-budget = st.sidebar.number_input("Бюджет (лв)", 300, 10000, 1500)
+budget = st.sidebar.number_input("Бюджет (лв)", 300, 5000, 1500)
 
 if st.sidebar.button("🚀 Планирай пътуването"):
     cities = routes[route_choice]
@@ -133,22 +149,14 @@ if st.sidebar.button("🚀 Планирай пътуването"):
     st.subheader("🗺️ Маршрут")
     st.write(" ➡️ ".join(cities))
 
-    # ================== MAP ==================
-
-    points_df = pd.DataFrame(
-        [{"lat": city_coords[c][0], "lon": city_coords[c][1]} for c in cities]
-    )
-
+    # MAP
+    points_df = pd.DataFrame([{"lat": city_coords[c][0], "lon": city_coords[c][1]} for c in cities])
     lines_df = pd.DataFrame([
-        {
-            "from_lat": city_coords[cities[i]][0],
-            "from_lon": city_coords[cities[i]][1],
-            "to_lat": city_coords[cities[i + 1]][0],
-            "to_lon": city_coords[cities[i + 1]][1],
-        }
-        for i in range(len(cities) - 1)
+        {"from_lat": city_coords[cities[i]][0],
+         "from_lon": city_coords[cities[i]][1],
+         "to_lat": city_coords[cities[i + 1]][0],
+         "to_lon": city_coords[cities[i + 1]][1]} for i in range(len(cities) - 1)
     ])
-
     layer_points = pdk.Layer(
         "ScatterplotLayer",
         data=points_df,
@@ -157,35 +165,23 @@ if st.sidebar.button("🚀 Планирай пътуването"):
         radius_scale=6,
         radius_min_pixels=4,
         radius_max_pixels=12,
-        get_fill_color=[50, 130, 200],
+        get_fill_color=[50, 130, 200] if st.session_state.theme=="light" else [200,200,255],
         pickable=True,
     )
-
     layer_lines = pdk.Layer(
         "LineLayer",
         data=lines_df,
         get_source_position="[from_lon, from_lat]",
         get_target_position="[to_lon, to_lat]",
         get_width=4,
-        get_color=[215, 38, 61],
+        get_color=[215, 38, 61] if st.session_state.theme=="light" else [255,100,100],
     )
+    view_state = pdk.ViewState(latitude=points_df["lat"].mean(), longitude=points_df["lon"].mean(), zoom=4)
+    st.pydeck_chart(pdk.Deck(layers=[layer_lines, layer_points], initial_view_state=view_state))
 
-    view_state = pdk.ViewState(
-        latitude=points_df["lat"].mean(),
-        longitude=points_df["lon"].mean(),
-        zoom=4,
-    )
-
-    st.pydeck_chart(pdk.Deck(
-        layers=[layer_lines, layer_points],
-        initial_view_state=view_state
-    ))
-
-    # ================== DETAILS ==================
-
+    # DETAILS
     total_food = total_hotel = 0
     progress = st.progress(0)
-
     for i, city in enumerate(cities):
         info = city_info[city]
         with st.expander(f"📍 {city}"):
@@ -195,8 +191,6 @@ if st.sidebar.button("🚀 Планирай пътуването"):
         total_food += info["food"][1] * days
         total_hotel += info["hotel"][1] * days
         progress.progress((i + 1) / len(cities))
-
-    # ================== SUMMARY ==================
 
     distance = DISTANCE_BETWEEN_CITIES * (len(cities) - 1)
     transport_cost = transport.travel_cost(distance)
@@ -211,15 +205,10 @@ if st.sidebar.button("🚀 Планирай пътуването"):
 
     st.markdown("---")
     st.markdown(f"## 💵 Общо: **{total_cost:.2f} лв**")
-
-    if total_cost <= budget * 0.8:
-        st.success("💚 Отличен бюджет")
-    elif total_cost <= budget:
-        st.warning("🟡 На ръба")
-    else:
-        st.error("🔴 Над бюджета")
+    if total_cost <= budget * 0.8: st.success("💚 Отличен бюджет")
+    elif total_cost <= budget: st.warning("🟡 На ръба")
+    else: st.error("🔴 Над бюджета")
 
     st.info(f"🎲 Случайно събитие: {random.choice(['🎉 Фестивал', '🌧️ Лошо време', '💸 Отстъпка'])}")
-
     st.subheader("⭐ Оцени пътуването")
     st.slider("Колко ти хареса?", 1, 5)
