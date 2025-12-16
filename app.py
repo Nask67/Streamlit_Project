@@ -1,7 +1,8 @@
 import streamlit as st
 from abc import ABC, abstractmethod
-import random
 import pandas as pd
+import random
+import pydeck as pdk
 
 # ================== DATA ==================
 
@@ -64,21 +65,18 @@ class Transport(ABC):
 class Car(Transport):
     def __init__(self):
         super().__init__(0.25, 80)
-
     def name(self):
         return "🚗 Кола"
 
 class Train(Transport):
     def __init__(self):
         super().__init__(0.18, 100)
-
     def name(self):
         return "🚆 Влак"
 
 class Plane(Transport):
     def __init__(self):
         super().__init__(0.45, 600)
-
     def name(self):
         return "✈️ Самолет"
 
@@ -88,7 +86,6 @@ st.set_page_config(page_title="Туристически планер", layout="w
 st.title("🌍 Интерактивен туристически планер")
 
 st.sidebar.header("🧭 Контролен панел")
-
 route_choice = st.sidebar.selectbox("Маршрут", list(routes.keys()))
 transport_choice = st.sidebar.radio("Превоз", ["Кола", "Влак", "Самолет"])
 days = st.sidebar.slider("Брой дни", 1, 10, 4)
@@ -96,19 +93,59 @@ budget = st.sidebar.number_input("Бюджет (лв)", 300, 5000, 1500)
 
 if st.sidebar.button("🚀 Планирай пътуването"):
     cities = routes[route_choice]
-
     transport = Car() if transport_choice == "Кола" else Train() if transport_choice == "Влак" else Plane()
 
     st.subheader("🗺️ Маршрут")
     st.write(" ➡️ ".join(cities))
 
-    # MAP
-    df = pd.DataFrame([{"lat": city_coords[c][0], "lon": city_coords[c][1]} for c in cities])
-    st.map(df)
+    # ================== MAP WITH LINE ==================
 
-    st.subheader("🏙️ Спирки")
-    total_food, total_hotel = 0, 0
+    points_df = pd.DataFrame(
+        [{"lat": city_coords[c][0], "lon": city_coords[c][1]} for c in cities]
+    )
 
+    lines_df = pd.DataFrame([
+        {
+            "from_lat": city_coords[cities[i]][0],
+            "from_lon": city_coords[cities[i]][1],
+            "to_lat": city_coords[cities[i + 1]][0],
+            "to_lon": city_coords[cities[i + 1]][1],
+        }
+        for i in range(len(cities) - 1)
+    ])
+
+    layer_points = pdk.Layer(
+        "ScatterplotLayer",
+        data=points_df,
+        get_position="[lon, lat]",
+        get_radius=70000,
+        get_fill_color=[0, 128, 255],
+        pickable=True,
+    )
+
+    layer_lines = pdk.Layer(
+        "LineLayer",
+        data=lines_df,
+        get_source_position="[from_lon, from_lat]",
+        get_target_position="[to_lon, to_lat]",
+        get_width=4,
+        get_color=[255, 80, 80],
+    )
+
+    view_state = pdk.ViewState(
+        latitude=points_df["lat"].mean(),
+        longitude=points_df["lon"].mean(),
+        zoom=4,
+    )
+
+    st.pydeck_chart(pdk.Deck(
+        layers=[layer_lines, layer_points],
+        initial_view_state=view_state
+    ))
+
+    # ================== DETAILS ==================
+
+    total_food = total_hotel = 0
     progress = st.progress(0)
 
     for i, city in enumerate(cities):
@@ -117,15 +154,15 @@ if st.sidebar.button("🚀 Планирай пътуването"):
             st.write(f"🏨 {info['hotel'][0]} – {info['hotel'][1]} лв/нощ")
             st.write(f"🍽️ {info['food'][0]} – {info['food'][1]} лв/ден")
             st.write(f"🏛️ {info['sight']}")
-
         total_food += info["food"][1] * days
         total_hotel += info["hotel"][1] * days
         progress.progress((i + 1) / len(cities))
 
-    total_distance = DISTANCE_BETWEEN_CITIES * (len(cities) - 1)
-    transport_cost = transport.travel_cost(total_distance)
-    travel_time = transport.travel_time(total_distance)
+    # ================== SUMMARY ==================
 
+    distance = DISTANCE_BETWEEN_CITIES * (len(cities) - 1)
+    transport_cost = transport.travel_cost(distance)
+    travel_time = transport.travel_time(distance)
     total_cost = total_food + total_hotel + transport_cost
 
     st.subheader("💰 Резюме")
@@ -138,19 +175,13 @@ if st.sidebar.button("🚀 Планирай пътуването"):
     st.write(f"## 💵 Общо: **{total_cost:.2f} лв**")
 
     if total_cost <= budget * 0.8:
-        st.success("💚 Отличен бюджет – пътуваш спокойно")
+        st.success("💚 Отличен бюджет")
     elif total_cost <= budget:
-        st.warning("🟡 На ръба, но става")
+        st.warning("🟡 На ръба")
     else:
         st.error("🔴 Над бюджета")
 
-    event = random.choice([
-        "🎉 Попадна на местен фестивал!",
-        "🌧️ Лошо време – повече музеи",
-        "💸 Отстъпка в хотел!"
-    ])
-
-    st.info(f"🎲 Случайно събитие: {event}")
+    st.info(f"🎲 Случайно събитие: {random.choice(['🎉 Фестивал', '🌧️ Лошо време', '💸 Отстъпка'])}")
 
     st.subheader("⭐ Оцени пътуването")
     st.slider("Колко ти хареса?", 1, 5)
