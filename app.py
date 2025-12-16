@@ -18,7 +18,7 @@ routes = {
 
 
 
-city_info({
+city_info = {
 
     "Скопие": {
         "hotel": ("Skopje Square Hotel", 60),
