@@ -169,9 +169,9 @@ CITY_COORDS = {
 
 CITY_IMAGES = {
     "Берлин": "https://blog.karat-s.com/wp-content/uploads/2017/04/berlin-view.jpg",
-    "Мюнхен": "https://unsplash.com/s/photos/munich-city",
-    "Хамбург": "https://unsplash.com/s/photos/hamburg-city",
-    "Кьолн": "https://unsplash.com/s/photos/cologne-city",
+    "Мюнхен": "https://cdn.tripzaza.com/bg/destinations/wp-content/uploads/2018/07/Dostoprimechatelnosti-Myunhena-e1531368855353.jpg",
+    "Хамбург": "https://peika.bg/pictures/84183_715__3.jpg",
+    "Кьолн": "https://m.netinfo.bg/media/images/50860/50860414/991-ratio-kioln.jpg",
 
     "Париж": "https://unsplash.com/s/photos/paris-city",
     "Лион": "https://unsplash.com/s/photos/lyon-city",
