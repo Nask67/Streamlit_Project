@@ -118,7 +118,7 @@ if st.sidebar.button("🚀 Планирай пътуването"):
         "ScatterplotLayer",
         data=points_df,
         get_position="[lon, lat]",
-        get_radius=70000,
+        get_radius=25000,
         get_fill_color=[0, 128, 255],
         pickable=True,
     )
