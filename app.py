@@ -82,7 +82,42 @@ class Plane(Transport):
 
 # ================== UI ==================
 
-st.set_page_config(page_title="Туристически планер", layout="wide")
+# Модерен цветови стил
+PRIMARY_COLOR = "#0f4c75"      # тъмно синьо
+SECONDARY_COLOR = "#3282b8"    # тюркоаз
+ACCENT_COLOR = "#d7263d"       # червено за акценти
+BG_COLOR = "#f0f4f8"           # светъл фон
+st.set_page_config(page_title="Туристически планер", layout="wide", page_icon="🌍")
+
+st.markdown(
+    f"""
+    <style>
+        .reportview-container {{
+            background-color: {BG_COLOR};
+        }}
+        .sidebar .sidebar-content {{
+            background-color: {SECONDARY_COLOR};
+            color: white;
+        }}
+        .stButton>button {{
+            background-color: {ACCENT_COLOR};
+            color: white;
+        }}
+        .stSlider>div>div>div>div>div {{
+            background: {PRIMARY_COLOR};
+        }}
+        h1 {{
+            color: {PRIMARY_COLOR};
+            text-shadow: 1px 1px 2px #aaa;
+        }}
+        .stExpanderHeader {{
+            font-size: 18px;
+            font-weight: bold;
+        }}
+    </style>
+    """, unsafe_allow_html=True
+)
+
 st.title("🌍 Интерактивен туристически планер")
 
 st.sidebar.header("🧭 Контролен панел")
@@ -98,7 +133,7 @@ if st.sidebar.button("🚀 Планирай пътуването"):
     st.subheader("🗺️ Маршрут")
     st.write(" ➡️ ".join(cities))
 
-    # ================== MAP WITH ROUTE LINE ==================
+    # ================== MAP ==================
 
     points_df = pd.DataFrame(
         [{"lat": city_coords[c][0], "lon": city_coords[c][1]} for c in cities]
@@ -118,11 +153,11 @@ if st.sidebar.button("🚀 Планирай пътуването"):
         "ScatterplotLayer",
         data=points_df,
         get_position="[lon, lat]",
-        get_radius=1000,            # базов радиус
-        radius_scale=6,             # как реагира на zoom
-        radius_min_pixels=4,        # минимален размер при zoom
-        radius_max_pixels=12,       # максимален размер при zoom
-        get_fill_color=[0, 128, 255],
+        get_radius=1000,
+        radius_scale=6,
+        radius_min_pixels=4,
+        radius_max_pixels=12,
+        get_fill_color=[50, 130, 200],
         pickable=True,
     )
 
@@ -132,7 +167,7 @@ if st.sidebar.button("🚀 Планирай пътуването"):
         get_source_position="[from_lon, from_lat]",
         get_target_position="[to_lon, to_lat]",
         get_width=4,
-        get_color=[255, 80, 80],
+        get_color=[215, 38, 61],
     )
 
     view_state = pdk.ViewState(
@@ -154,9 +189,9 @@ if st.sidebar.button("🚀 Планирай пътуването"):
     for i, city in enumerate(cities):
         info = city_info[city]
         with st.expander(f"📍 {city}"):
-            st.write(f"🏨 {info['hotel'][0]} – {info['hotel'][1]} лв/нощ")
-            st.write(f"🍽️ {info['food'][0]} – {info['food'][1]} лв/ден")
-            st.write(f"🏛️ {info['sight']}")
+            st.markdown(f"**🏨 Хотел:** {info['hotel'][0]} – {info['hotel'][1]} лв/нощ")
+            st.markdown(f"**🍽️ Храна:** {info['food'][0]} – {info['food'][1]} лв/ден")
+            st.markdown(f"**🏛️ Забележителност:** {info['sight']}")
         total_food += info["food"][1] * days
         total_hotel += info["hotel"][1] * days
         progress.progress((i + 1) / len(cities))
@@ -169,13 +204,13 @@ if st.sidebar.button("🚀 Планирай пътуването"):
     total_cost = total_food + total_hotel + transport_cost
 
     st.subheader("💰 Резюме")
-    st.write(f"{transport.name()} – {transport_cost:.2f} лв")
-    st.write(f"🍽️ Храна: {total_food:.2f} лв")
-    st.write(f"🏨 Хотели: {total_hotel:.2f} лв")
-    st.write(f"⏱️ Време за пътуване: {travel_time:.1f} часа")
+    st.markdown(f"**{transport.name()}** – {transport_cost:.2f} лв")
+    st.markdown(f"🍽️ Храна: {total_food:.2f} лв")
+    st.markdown(f"🏨 Хотели: {total_hotel:.2f} лв")
+    st.markdown(f"⏱️ Време за пътуване: {travel_time:.1f} часа")
 
     st.markdown("---")
-    st.write(f"## 💵 Общо: **{total_cost:.2f} лв**")
+    st.markdown(f"## 💵 Общо: **{total_cost:.2f} лв**")
 
     if total_cost <= budget * 0.8:
         st.success("💚 Отличен бюджет")
