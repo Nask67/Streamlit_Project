@@ -82,9 +82,7 @@ class Plane(Transport):
 
 # ================== THEME ==================
 
-# ====== Theme Selection ======
 theme = st.sidebar.radio("Тема", ["Светла", "Тъмна"])
-
 if theme == "Светла":
     PRIMARY_COLOR = "#0f4c75"
     SECONDARY_COLOR = "#3282b8"
@@ -102,11 +100,10 @@ else:
     LINE_COLOR = [255, 100, 100]
     TEXT_COLOR = "white"
 
-# ====== Apply CSS ======
 st.markdown(
     f"""
     <style>
-        .reportview-container {{
+        .stApp {{
             background-color: {BG_COLOR};
             color: {TEXT_COLOR};
         }}
@@ -121,55 +118,14 @@ st.markdown(
         h1 {{
             color: {PRIMARY_COLOR};
         }}
+        .stExpanderHeader {{
+            font-size: 18px;
+            font-weight: bold;
+        }}
     </style>
-    """,
-    unsafe_allow_html=True
+    """, unsafe_allow_html=True
 )
 
-st.title("🌍 Демонстрация на тема")
-
-# ====== Map Example ======
-cities = ["София", "Виена", "Мюнхен"]
-city_coords = {
-    "София": [42.6977, 23.3219],
-    "Виена": [48.2082, 16.3738],
-    "Мюнхен": [48.1351, 11.5820]
-}
-
-points_df = pd.DataFrame([{"lat": city_coords[c][0], "lon": city_coords[c][1]} for c in cities])
-lines_df = pd.DataFrame([
-    {"from_lat": city_coords[cities[i]][0],
-     "from_lon": city_coords[cities[i]][1],
-     "to_lat": city_coords[cities[i+1]][0],
-     "to_lon": city_coords[cities[i+1]][1]} for i in range(len(cities)-1)
-])
-
-layer_points = pdk.Layer(
-    "ScatterplotLayer",
-    data=points_df,
-    get_position="[lon, lat]",
-    get_radius=1000,
-    radius_scale=6,
-    radius_min_pixels=4,
-    radius_max_pixels=12,
-    get_fill_color=POINT_COLOR,
-    pickable=True,
-)
-
-layer_lines = pdk.Layer(
-    "LineLayer",
-    data=lines_df,
-    get_source_position="[from_lon, from_lat]",
-    get_target_position="[to_lon, to_lat]",
-    get_width=4,
-    get_color=LINE_COLOR
-)
-
-view_state = pdk.ViewState(latitude=points_df["lat"].mean(),
-                           longitude=points_df["lon"].mean(),
-                           zoom=4)
-
-st.pydeck_chart(pdk.Deck(layers=[layer_lines, layer_points], initial_view_state=view_state))
 # ================== UI ==================
 
 st.title("🌍 Интерактивен туристически планер")
@@ -187,14 +143,15 @@ if st.sidebar.button("🚀 Планирай пътуването"):
     st.subheader("🗺️ Маршрут")
     st.write(" ➡️ ".join(cities))
 
-    # MAP
+    # ================== MAP ==================
     points_df = pd.DataFrame([{"lat": city_coords[c][0], "lon": city_coords[c][1]} for c in cities])
     lines_df = pd.DataFrame([
         {"from_lat": city_coords[cities[i]][0],
          "from_lon": city_coords[cities[i]][1],
-         "to_lat": city_coords[cities[i + 1]][0],
-         "to_lon": city_coords[cities[i + 1]][1]} for i in range(len(cities) - 1)
+         "to_lat": city_coords[cities[i+1]][0],
+         "to_lon": city_coords[cities[i+1]][1]} for i in range(len(cities)-1)
     ])
+
     layer_points = pdk.Layer(
         "ScatterplotLayer",
         data=points_df,
@@ -203,21 +160,26 @@ if st.sidebar.button("🚀 Планирай пътуването"):
         radius_scale=6,
         radius_min_pixels=4,
         radius_max_pixels=12,
-        get_fill_color=[50, 130, 200] if st.session_state.theme=="light" else [200,200,255],
+        get_fill_color=POINT_COLOR,
         pickable=True,
     )
+
     layer_lines = pdk.Layer(
         "LineLayer",
         data=lines_df,
         get_source_position="[from_lon, from_lat]",
         get_target_position="[to_lon, to_lat]",
         get_width=4,
-        get_color=[215, 38, 61] if st.session_state.theme=="light" else [255,100,100],
+        get_color=LINE_COLOR
     )
-    view_state = pdk.ViewState(latitude=points_df["lat"].mean(), longitude=points_df["lon"].mean(), zoom=4)
+
+    view_state = pdk.ViewState(latitude=points_df["lat"].mean(),
+                               longitude=points_df["lon"].mean(),
+                               zoom=4)
+
     st.pydeck_chart(pdk.Deck(layers=[layer_lines, layer_points], initial_view_state=view_state))
 
-    # DETAILS
+    # ================== DETAILS ==================
     total_food = total_hotel = 0
     progress = st.progress(0)
     for i, city in enumerate(cities):
