@@ -155,6 +155,50 @@ CITY_COORDS = {
     "Орхус": [56.1629, 10.2039],
 }
 
+CITY_IMAGES = {
+    "Берлин": "https://images.unsplash.com/photo-1467269204594-9661b134dd2b",
+    "Мюнхен": "https://images.unsplash.com/photo-1547970810-dc1eac37d174",
+    "Хамбург": "https://images.unsplash.com/photo-1526481280690-7ead52c26d60",
+    "Кьолн": "https://images.unsplash.com/photo-1565099824688-e93eb20fe622",
+
+    "Париж": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34",
+    "Лион": "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3",
+    "Марсилия": "https://images.unsplash.com/photo-1505765050516-f72dcac9c60b",
+    "Ница": "https://images.unsplash.com/photo-1508599589920-14cfa1c1fe4d",
+
+    "Рим": "https://images.unsplash.com/photo-1525874684015-58379d421a52",
+    "Флоренция": "https://images.unsplash.com/photo-1549880338-65ddcdfd017b",
+    "Венеция": "https://images.unsplash.com/photo-1504196606672-aef5c9cefc92",
+    "Милано": "https://images.unsplash.com/photo-1529260830199-42c24126f198",
+
+    "Барселона": "https://images.unsplash.com/photo-1505739775308-4b4b0f1f6f9f",
+    "Мадрид": "https://images.unsplash.com/photo-1543783207-ec64e4d95325",
+    "Валенсия": "https://images.unsplash.com/photo-1508609349937-5ec4ae374ebf",
+    "Севиля": "https://images.unsplash.com/photo-1528909514045-2fa4ac7a08ba",
+
+    "Солун": "https://images.unsplash.com/photo-1601297183305-6df142704ea2",
+    "Атина": "https://images.unsplash.com/photo-1505731132164-cca903cf6d90",
+    "Санторини": "https://images.unsplash.com/photo-1507537297725-24a1c029d3ca",
+
+    "Виена": "https://images.unsplash.com/photo-1526481280690-7ead52c26d60",
+    "Залцбург": "https://images.unsplash.com/photo-1564419320461-6870880221ad",
+    "Инсбрук": "https://images.unsplash.com/photo-1508614999368-9260051291ea",
+
+    "Прага": "https://images.unsplash.com/photo-1505761671935-60b3a7427bad",
+    "Бърно": "https://images.unsplash.com/photo-1600628422019-8c4a0c90e2c2",
+
+    "Амстердам": "https://images.unsplash.com/photo-1505761671935-60b3a7427bad",
+    "Ротердам": "https://images.unsplash.com/photo-1549880338-65ddcdfd017b",
+
+    "Стокхолм": "https://images.unsplash.com/photo-1509356843151-3e7d96241e11",
+    "Гьотеборг": "https://images.unsplash.com/photo-1588594140035-4c07f3f47c56",
+
+    "Загреб": "https://images.unsplash.com/photo-1598887142488-5f8cdbb0e1b1",
+    "Сплит": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Дубровник": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+}
+
+
 HOTEL_PRICES = {
     "🏠 Бюджетен хотел": 60,
     "🏨 Комфортен хотел": 100,
@@ -295,20 +339,26 @@ if plan:
 
     st.subheader("📍 Градове и преживявания")
 
-    hotel_price = HOTEL_PRICES[hotel_type]
-    food_price = 30
+hotel_price = HOTEL_PRICES[hotel_type]
+food_price = 30
 
-    total_food = 0
-    total_hotel = 0
+total_food = 0
+total_hotel = 0
 
-    for city in selected_cities[1:]:
-        food = next(food for c, food in DESTINATIONS[country] if c == city)
-        with st.expander(city):
-            st.write(f"🏨 **{hotel_type}:** {hotel_price} лв / нощ")
-            st.write(f"🍽️ **Традиционна храна:** {food}")
-            st.write("🏛️ **Препоръка:** разходка в историческия център")
-        total_food += food_price * days
-        total_hotel += hotel_price * days
+for city in selected_cities[1:]:
+    food = next(food for c, food in DESTINATIONS[country] if c == city)
+
+    with st.expander(city):
+        if city in CITY_IMAGES:
+            st.image(CITY_IMAGES[city], use_column_width=True)
+
+        st.write(f"🏨 **{hotel_type}:** {hotel_price} лв / нощ")
+        st.write(f"🍽️ **Традиционна храна:** {food}")
+        st.write("🏛️ **Препоръка:** разходка в историческия център")
+
+    total_food += food_price * days
+    total_hotel += hotel_price * days
+
 
     # ================== SUMMARY ==================
 
