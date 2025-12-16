@@ -339,25 +339,25 @@ if plan:
 
     st.subheader("📍 Градове и преживявания")
 
-hotel_price = HOTEL_PRICES[hotel_type]
-food_price = 30
+    hotel_price = HOTEL_PRICES[hotel_type]
+    food_price = 30
 
-total_food = 0
-total_hotel = 0
+    total_food = 0
+    total_hotel = 0
+    
+    for city in selected_cities[1:]:
+        food = next(food for c, food in DESTINATIONS[country] if c == city)
+    
+        with st.expander(city):
+            if city in CITY_IMAGES:
+                st.image(CITY_IMAGES[city], use_column_width=True)
 
-for city in selected_cities[1:]:
-    food = next(food for c, food in DESTINATIONS[country] if c == city)
+            st.write(f"🏨 **{hotel_type}:** {hotel_price} лв / нощ")
+            st.write(f"🍽️ **Традиционна храна:** {food}")
+            st.write("🏛️ **Препоръка:** разходка в историческия център")
 
-    with st.expander(city):
-        if city in CITY_IMAGES:
-            st.image(CITY_IMAGES[city], use_column_width=True)
-
-        st.write(f"🏨 **{hotel_type}:** {hotel_price} лв / нощ")
-        st.write(f"🍽️ **Традиционна храна:** {food}")
-        st.write("🏛️ **Препоръка:** разходка в историческия център")
-
-    total_food += food_price * days
-    total_hotel += hotel_price * days
+        total_food += food_price * days
+        total_hotel += hotel_price * days
 
 
     # ================== SUMMARY ==================
