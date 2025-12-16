@@ -196,6 +196,26 @@ CITY_IMAGES = {
     "Загреб": "https://images.unsplash.com/photo-1598887142488-5f8cdbb0e1b1",
     "Сплит": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
     "Дубровник": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    
+    "Лисабон": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Порто": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Фаро": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Варшава": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Краков": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Гданск": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Будапеща": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Дебрецен": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Цюрих": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Женева": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Берн": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Брюксел": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Брюж": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Антверпен": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Букурещ": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Брашов": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Клуж-Напока": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Копенхаген": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
+    "Орхус": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb",
 }
 
 
