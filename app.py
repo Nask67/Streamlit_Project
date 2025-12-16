@@ -82,29 +82,27 @@ class Plane(Transport):
 
 # ================== THEME ==================
 
-# Инициализация на session_state
-if "dark_mode" not in st.session_state:
-    st.session_state.dark_mode = False
+# ====== Theme Selection ======
+theme = st.sidebar.radio("Тема", ["Светла", "Тъмна"])
 
-# Toggle за тъмна/светла тема
-dark_mode = st.sidebar.checkbox("🌙 Тъмна тема", value=st.session_state.dark_mode)
-st.session_state.dark_mode = dark_mode
-
-# Цветови схеми
-if st.session_state.dark_mode:
-    PRIMARY_COLOR = "#d1d1d1"
-    SECONDARY_COLOR = "#222222"
-    ACCENT_COLOR = "#ff4b5c"
-    BG_COLOR = "#0f0f0f"
-    TEXT_COLOR = "white"
-else:
+if theme == "Светла":
     PRIMARY_COLOR = "#0f4c75"
     SECONDARY_COLOR = "#3282b8"
     ACCENT_COLOR = "#d7263d"
     BG_COLOR = "#f0f4f8"
+    POINT_COLOR = [50, 130, 200]
+    LINE_COLOR = [215, 38, 61]
     TEXT_COLOR = "black"
+else:
+    PRIMARY_COLOR = "#d1d1d1"
+    SECONDARY_COLOR = "#222222"
+    ACCENT_COLOR = "#ff4b5c"
+    BG_COLOR = "#0f0f0f"
+    POINT_COLOR = [200, 200, 255]
+    LINE_COLOR = [255, 100, 100]
+    TEXT_COLOR = "white"
 
-# Прилагане на CSS
+# ====== Apply CSS ======
 st.markdown(
     f"""
     <style>
@@ -124,9 +122,54 @@ st.markdown(
             color: {PRIMARY_COLOR};
         }}
     </style>
-    """, unsafe_allow_html=True
+    """,
+    unsafe_allow_html=True
 )
 
+st.title("🌍 Демонстрация на тема")
+
+# ====== Map Example ======
+cities = ["София", "Виена", "Мюнхен"]
+city_coords = {
+    "София": [42.6977, 23.3219],
+    "Виена": [48.2082, 16.3738],
+    "Мюнхен": [48.1351, 11.5820]
+}
+
+points_df = pd.DataFrame([{"lat": city_coords[c][0], "lon": city_coords[c][1]} for c in cities])
+lines_df = pd.DataFrame([
+    {"from_lat": city_coords[cities[i]][0],
+     "from_lon": city_coords[cities[i]][1],
+     "to_lat": city_coords[cities[i+1]][0],
+     "to_lon": city_coords[cities[i+1]][1]} for i in range(len(cities)-1)
+])
+
+layer_points = pdk.Layer(
+    "ScatterplotLayer",
+    data=points_df,
+    get_position="[lon, lat]",
+    get_radius=1000,
+    radius_scale=6,
+    radius_min_pixels=4,
+    radius_max_pixels=12,
+    get_fill_color=POINT_COLOR,
+    pickable=True,
+)
+
+layer_lines = pdk.Layer(
+    "LineLayer",
+    data=lines_df,
+    get_source_position="[from_lon, from_lat]",
+    get_target_position="[to_lon, to_lat]",
+    get_width=4,
+    get_color=LINE_COLOR
+)
+
+view_state = pdk.ViewState(latitude=points_df["lat"].mean(),
+                           longitude=points_df["lon"].mean(),
+                           zoom=4)
+
+st.pydeck_chart(pdk.Deck(layers=[layer_lines, layer_points], initial_view_state=view_state))
 # ================== UI ==================
 
 st.title("🌍 Интерактивен туристически планер")
