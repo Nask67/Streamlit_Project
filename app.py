@@ -1,11 +1,10 @@
 import streamlit as st
 from abc import ABC, abstractmethod
 import pandas as pd
-import random
+import pydeck as pdk
 
 # ================== DATA ==================
 
-# Целева държава -> градове
 destinations = {
     "🇩🇪 Германия": ["Белград", "Виена", "Мюнхен", "Хамбург"],
     "🇮🇹 Италия": ["Скопие", "Рим", "Флоренция", "Венеция"],
@@ -17,7 +16,6 @@ destinations = {
     "Балкани": ["Скопие", "Тирана", "Дубровник", "Сараево"]
 }
 
-# Информация за градовете
 city_info = {
     "София": {"hotel": ("Hotel Sofia Center", 70), "food": ("Българска кухня", 20), "sight": "Александър Невски", "traditional": "Шопска салата"},
     "Белград": {"hotel": ("Belgrade Inn", 65), "food": ("Сръбска скара", 22), "sight": "Калемегдан", "traditional": "Ćevapi"},
@@ -45,6 +43,35 @@ city_info = {
     "Ротердам": {"hotel": ("Rotterdam Central", 90), "food": ("Холандска кухня", 25), "sight": "Markthal", "traditional": "Haring"},
     "Лисабон": {"hotel": ("Lisbon Downtown Hotel", 100), "food": ("Португалска кухня", 30), "sight": "Башня Белем", "traditional": "Bacalhau"},
     "Порто": {"hotel": ("Porto Riverside", 95), "food": ("Португалска кухня", 28), "sight": "Кулата Клеригос", "traditional": "Francesinha"}
+}
+
+city_coords = {
+    "София": [42.6977, 23.3219],
+    "Белград": [44.7866, 20.4489],
+    "Виена": [48.2082, 16.3738],
+    "Мюнхен": [48.1351, 11.5820],
+    "Хамбург": [53.5511, 9.9937],
+    "Скопие": [41.9981, 21.4254],
+    "Рим": [41.9028, 12.4964],
+    "Флоренция": [43.7696, 11.2558],
+    "Венеция": [45.4408, 12.3155],
+    "Будапеща": [47.4979, 19.0402],
+    "Прага": [50.0755, 14.4378],
+    "Париж": [48.8566, 2.3522],
+    "Лион": [45.7640, 4.8357],
+    "Тирана": [41.3275, 19.8187],
+    "Дубровник": [42.6507, 18.0944],
+    "Сараево": [43.8563, 18.4131],
+    "Мадрид": [40.4168, -3.7038],
+    "Барселона": [41.3851, 2.1734],
+    "Севиля": [37.3891, -5.9845],
+    "Атина": [37.9838, 23.7275],
+    "Солун": [40.6401, 22.9444],
+    "Санторини": [36.3932, 25.4615],
+    "Амстердам": [52.3676, 4.9041],
+    "Ротердам": [51.9225, 4.4792],
+    "Лисабон": [38.7223, -9.1393],
+    "Порто": [41.1496, -8.6110]
 }
 
 DISTANCE_BETWEEN_CITIES = 300
@@ -86,9 +113,46 @@ hotel_type = st.sidebar.radio("Тип хотел", ["Бюджетен", "Сре�
 
 if st.sidebar.button("🚀 Планирай пътуването"):
     transport = Car() if transport_choice=="Кола" else Train() if transport_choice=="Влак" else Plane()
+
     st.subheader("🗺️ Маршрут")
     st.write(" ➡️ ".join(cities))
 
+    # ================== MAP ==================
+    points_df = pd.DataFrame([{"lat": city_coords[c][0], "lon": city_coords[c][1]} for c in cities])
+    lines_df = pd.DataFrame([
+        {"from_lat": city_coords[cities[i]][0], "from_lon": city_coords[cities[i]][1],
+         "to_lat": city_coords[cities[i+1]][0], "to_lon": city_coords[cities[i+1]][1]}
+        for i in range(len(cities)-1)
+    ])
+
+    layer_points = pdk.Layer(
+        "ScatterplotLayer",
+        data=points_df,
+        get_position="[lon, lat]",
+        get_radius=1000,
+        radius_scale=6,
+        radius_min_pixels=5,
+        radius_max_pixels=12,
+        get_fill_color=[50,130,200],
+        pickable=True
+    )
+
+    layer_lines = pdk.Layer(
+        "LineLayer",
+        data=lines_df,
+        get_source_position="[from_lon, from_lat]",
+        get_target_position="[to_lon, to_lat]",
+        get_width=4,
+        get_color=[215,38,61]
+    )
+
+    view_state = pdk.ViewState(latitude=points_df["lat"].mean(),
+                                longitude=points_df["lon"].mean(),
+                                zoom=4)
+
+    st.pydeck_chart(pdk.Deck(layers=[layer_lines, layer_points], initial_view_state=view_state))
+
+    # ================== DETAILS ==================
     total_food = total_hotel = 0
     for city in cities:
         info = city_info[city]
