@@ -82,32 +82,35 @@ class Plane(Transport):
 
 # ================== THEME ==================
 
-if "theme" not in st.session_state:
-    st.session_state.theme = "light"
+# Инициализация на session_state
+if "dark_mode" not in st.session_state:
+    st.session_state.dark_mode = False
 
-def toggle_theme():
-    st.session_state.theme = "dark" if st.session_state.theme == "light" else "light"
-
-st.sidebar.button("🌓 Смени тема", on_click=toggle_theme)
+# Toggle за тъмна/светла тема
+dark_mode = st.sidebar.checkbox("🌙 Тъмна тема", value=st.session_state.dark_mode)
+st.session_state.dark_mode = dark_mode
 
 # Цветови схеми
-if st.session_state.theme == "light":
-    PRIMARY_COLOR = "#0f4c75"
-    SECONDARY_COLOR = "#3282b8"
-    ACCENT_COLOR = "#d7263d"
-    BG_COLOR = "#f0f4f8"
-else:
+if st.session_state.dark_mode:
     PRIMARY_COLOR = "#d1d1d1"
     SECONDARY_COLOR = "#222222"
     ACCENT_COLOR = "#ff4b5c"
     BG_COLOR = "#0f0f0f"
+    TEXT_COLOR = "white"
+else:
+    PRIMARY_COLOR = "#0f4c75"
+    SECONDARY_COLOR = "#3282b8"
+    ACCENT_COLOR = "#d7263d"
+    BG_COLOR = "#f0f4f8"
+    TEXT_COLOR = "black"
 
+# Прилагане на CSS
 st.markdown(
     f"""
     <style>
         .reportview-container {{
             background-color: {BG_COLOR};
-            color: {"white" if st.session_state.theme=="dark" else "black"};
+            color: {TEXT_COLOR};
         }}
         .sidebar .sidebar-content {{
             background-color: {SECONDARY_COLOR};
@@ -117,16 +120,8 @@ st.markdown(
             background-color: {ACCENT_COLOR};
             color: white;
         }}
-        .stSlider>div>div>div>div>div {{
-            background: {PRIMARY_COLOR};
-        }}
         h1 {{
             color: {PRIMARY_COLOR};
-            text-shadow: 1px 1px 2px #aaa;
-        }}
-        .stExpanderHeader {{
-            font-size: 18px;
-            font-weight: bold;
         }}
     </style>
     """, unsafe_allow_html=True
