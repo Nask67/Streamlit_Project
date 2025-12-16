@@ -98,7 +98,7 @@ if st.sidebar.button("🚀 Планирай пътуването"):
     st.subheader("🗺️ Маршрут")
     st.write(" ➡️ ".join(cities))
 
-    # ================== MAP WITH LINE ==================
+    # ================== MAP WITH ROUTE LINE ==================
 
     points_df = pd.DataFrame(
         [{"lat": city_coords[c][0], "lon": city_coords[c][1]} for c in cities]
@@ -118,7 +118,10 @@ if st.sidebar.button("🚀 Планирай пътуването"):
         "ScatterplotLayer",
         data=points_df,
         get_position="[lon, lat]",
-        get_radius=25000,
+        get_radius=1000,            # базов радиус
+        radius_scale=6,             # как реагира на zoom
+        radius_min_pixels=4,        # минимален размер при zoom
+        radius_max_pixels=12,       # максимален размер при zoom
         get_fill_color=[0, 128, 255],
         pickable=True,
     )
