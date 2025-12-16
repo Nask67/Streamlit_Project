@@ -168,7 +168,7 @@ CITY_COORDS = {
 }
 
 CITY_IMAGES = {
-    "Берлин": "https://unsplash.com/s/photos/berlin-city",
+    "Берлин": "http://blog.karat-s.com/nestandartni-zabelejitelnosti-berlin/",
     "Мюнхен": "https://unsplash.com/s/photos/munich-city",
     "Хамбург": "https://unsplash.com/s/photos/hamburg-city",
     "Кьолн": "https://unsplash.com/s/photos/cologne-city",
